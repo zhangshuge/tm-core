@@ -8,6 +8,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import com.ccbtrust.common.utils.Constants;
+import com.ccbtrust.core.interceptor.ControllerInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Spring web mvc 相关配置
@@ -22,10 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Configuration
-//激活Spring MVC 配置
-@EnableWebMvc
-//激活切面AOP
-@EnableAspectJAutoProxy(proxyTargetClass=true)
+@EnableWebMvc//激活Spring MVC 配置
+@EnableAspectJAutoProxy(proxyTargetClass=true)//激活切面AOP
 public class ApplicationWebConfig extends WebMvcConfigurerAdapter {
 
 	/*
@@ -94,5 +94,15 @@ public class ApplicationWebConfig extends WebMvcConfigurerAdapter {
 	    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
 	    converter.setObjectMapper(objectMapper);
 	    converters.add(converter);
+	  }
+	  /**
+	   * 添加拦截器,可添加多个。
+	   */
+	  @Override
+	  public void addInterceptors(InterceptorRegistry registry){
+		  /*
+		   * 自定义拦截器，在调用控制器前，将rpid、记录日志等信息放在线程池中
+		   */
+		  registry.addInterceptor(new ControllerInterceptor());
 	  }
 }
